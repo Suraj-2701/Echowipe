@@ -2,8 +2,8 @@ import subprocess
 import sys
 import re
 
-MODEL_PATH = r"D:\Echowipe\Model\model_detection.pth"
-EVAL_SCRIPT = "D:\Echowipe\Model\eval.py"
+MODEL_PATH = r"model_detection.pth"
+EVAL_SCRIPT = "eval.py"
 
 def detect_voice(audio_path: str):
     """
