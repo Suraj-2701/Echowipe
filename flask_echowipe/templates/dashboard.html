@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EchoWipe Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+</head>
+<body>
+
+<div class="card">
+    <h1 class="title">🎙 EchoWipe</h1>
+    <p class="subtitle">AI Synthetic Voice Detection</p>
+
+    <form action="/detect" method="POST" enctype="multipart/form-data">
+        <input type="file" name="audio" accept=".wav" required>
+        <button class="button">Detect Voice</button>
+    </form>
+
+    {% if result %}
+    <div class="output">
+        {% if result.label.startswith("FAKE") %}
+            <h2 class="fake">{{ result.label }}</h2>
+        {% else %}
+            <h2 class="real">{{ result.label }}</h2>
+        {% endif %}
+
+        <p>Fake Probability : <b>{{ result.fake }}</b></p>
+        <p>Real Probability : <b>{{ result.real }}</b></p>
+    </div>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">❌ {{ error }}</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

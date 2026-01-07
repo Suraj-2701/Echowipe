@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EchoWipe Login / Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <h2 id="form-title">
+            {% if otp_sent %}
+                Verify OTP
+            {% else %}
+                Login
+            {% endif %}
+        </h2>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        <!-- LOGIN FORM -->
+        <form method="POST" id="loginForm"
+              {% if otp_sent %}style="display:none;"{% endif %}>
+            <input type="hidden" name="action" value="login">
+
+            <div class="input-box">
+                <input type="email" name="login_email" placeholder="Email" required>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="login_password" placeholder="Password" required>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- SIGNUP / OTP FORM -->
+        <form method="POST" id="signupForm"
+              {% if not otp_sent %}style="display:none;"{% endif %}>
+            <input type="hidden" name="action" value="signup">
+
+            {% if otp_sent %}
+                <!-- OTP PAGE -->
+                <p>OTP sent to <b>{{ email_for_otp }}</b></p>
+                <input type="hidden" name="signup_email" value="{{ email_for_otp }}">
+
+                <div class="input-box">
+                    <input type="text" name="otp_code" placeholder="Enter OTP" required>
+                </div>
+
+                <button type="submit">Verify OTP</button>
+
+                
+
+            {% else %}
+                <!-- SIGNUP PAGE -->
+                <div class="input-box">
+                    <input type="text" name="first_name" placeholder="First Name" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="text" name="last_name" placeholder="Last Name" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" name="signup_email" placeholder="Email" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="signup_password" placeholder="Password" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                </div>
+
+                <label>
+                    <input type="checkbox" name="agree" required>
+                    I agree to Terms & Conditions
+                </label>
+
+                <button type="submit">Register</button>
+            {% endif %}
+        </form>
+
+        {% if not otp_sent %}
+        <p class="switch">
+            Don't have an account?
+            <span onclick="toggleForm()">Sign Up</span>
+        </p>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+let isLogin = true;
+function toggleForm() {
+    isLogin = !isLogin;
+    document.getElementById("loginForm").style.display = isLogin ? "block" : "none";
+    document.getElementById("signupForm").style.display = isLogin ? "none" : "block";
+    document.getElementById("form-title").innerText = isLogin ? "Login" : "Sign Up";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+#cuda==10.1
+numba
+numpy
+SoundFile
+librosa
+pyyaml
+tensorboardX
+matplotlib
+Flask
+Flask-Mail
+Werkzeug
+gunicorn
+
