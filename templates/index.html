@@ -11,13 +11,7 @@
 <div class="container">
     <div class="card">
 
-        <h2 id="form-title">
-            {% if otp_sent %}
-                Verify OTP
-            {% else %}
-                Login
-            {% endif %}
-        </h2>
+        <h2 id="form-title">Login</h2>
 
         <!-- FLASH MESSAGES -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -27,8 +21,7 @@
         {% endwith %}
 
         <!-- LOGIN FORM -->
-        <form method="POST" id="loginForm"
-              {% if otp_sent %}style="display:none;"{% endif %}>
+        <form method="POST" id="loginForm">
             <input type="hidden" name="action" value="login">
 
             <div class="input-box">
@@ -42,61 +35,42 @@
             <button type="submit">Login</button>
         </form>
 
-        <!-- SIGNUP / OTP FORM -->
-        <form method="POST" id="signupForm"
-              {% if not otp_sent %}style="display:none;"{% endif %}>
+        <!-- SIGNUP FORM -->
+        <form method="POST" id="signupForm" style="display:none;">
             <input type="hidden" name="action" value="signup">
 
-            {% if otp_sent %}
-                <!-- OTP PAGE -->
-                <p>OTP sent to <b>{{ email_for_otp }}</b></p>
-                <input type="hidden" name="signup_email" value="{{ email_for_otp }}">
+            <div class="input-box">
+                <input type="text" name="first_name" placeholder="First Name" required>
+            </div>
 
-                <div class="input-box">
-                    <input type="text" name="otp_code" placeholder="Enter OTP" required>
-                </div>
+            <div class="input-box">
+                <input type="text" name="last_name" placeholder="Last Name" required>
+            </div>
 
-                <button type="submit">Verify OTP</button>
+            <div class="input-box">
+                <input type="email" name="signup_email" placeholder="Email" required>
+            </div>
 
-                
+            <div class="input-box">
+                <input type="password" name="signup_password" placeholder="Password" required>
+            </div>
 
-            {% else %}
-                <!-- SIGNUP PAGE -->
-                <div class="input-box">
-                    <input type="text" name="first_name" placeholder="First Name" required>
-                </div>
+            <div class="input-box">
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+            </div>
 
-                <div class="input-box">
-                    <input type="text" name="last_name" placeholder="Last Name" required>
-                </div>
+            <label>
+                <input type="checkbox" name="agree" required>
+                I agree to Terms & Conditions
+            </label>
 
-                <div class="input-box">
-                    <input type="email" name="signup_email" placeholder="Email" required>
-                </div>
-
-                <div class="input-box">
-                    <input type="password" name="signup_password" placeholder="Password" required>
-                </div>
-
-                <div class="input-box">
-                    <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-                </div>
-
-                <label>
-                    <input type="checkbox" name="agree" required>
-                    I agree to Terms & Conditions
-                </label>
-
-                <button type="submit">Register</button>
-            {% endif %}
+            <button type="submit">Register</button>
         </form>
 
-        {% if not otp_sent %}
         <p class="switch">
             Don't have an account?
             <span onclick="toggleForm()">Sign Up</span>
         </p>
-        {% endif %}
 
     </div>
 </div>
