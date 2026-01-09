@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import json, os, random, uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -8,12 +8,17 @@ from flask_mail import Mail, Message
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
+# ---------------- RENDER HEALTH CHECK ----------------
+@app.route("/echowipe")
+def echowipe():
+    return "EchoWipe is running"
+
 # ---------------- MAIL CONFIG ----------------
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = "echowipe@gmail.com"
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")  # ✅ SAFE
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = "echowipe@gmail.com"
 
 mail = Mail(app)
@@ -62,7 +67,6 @@ def index():
         email = request.form.get("signup_email")
         otp_input = request.form.get("otp_code")
 
-        # SEND / RESEND OTP
         if not otp_input:
             first = request.form.get("first_name")
             last = request.form.get("last_name")
@@ -99,7 +103,6 @@ def index():
                 otp_sent = True
                 email_for_otp = email
 
-        # VERIFY OTP
         else:
             if email in otp_store and otp_input == otp_store[email]["otp"]:
                 users[email] = {
@@ -127,7 +130,7 @@ def dashboard():
         return redirect(url_for("index"))
     return render_template("dashboard.html")
 
-# ---------------- DETECT ----------------
+# ---------------- DETECT (WEB) ----------------
 @app.route("/detect", methods=["POST"])
 def detect():
     if "audio" not in request.files:
@@ -151,12 +154,30 @@ def detect():
 
     return render_template("dashboard.html", result=result)
 
+# ---------------- PUBLIC API (JSON) ----------------
+@app.route("/api/detect", methods=["POST"])
+def api_detect():
+    if "audio" not in request.files:
+        return jsonify({"error": "No file"}), 400
+
+    file = request.files["audio"]
+    filename = f"{uuid.uuid4().hex}.wav"
+    path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(path)
+
+    try:
+        fake, real, _ = detect_voice(path)
+        return jsonify({
+            "fake": float(fake),
+            "real": float(real),
+            "label": "FAKE (AI)" if fake > real else "REAL"
+        })
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
+
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("index"))
-
-# ---------------- RUN ----------------
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
