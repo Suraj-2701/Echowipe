@@ -11,3 +11,6 @@ Flask-Mail
 Werkzeug
 gunicorn
 
+resend
+flask
+werkzeug
