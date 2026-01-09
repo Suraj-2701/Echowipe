@@ -18,7 +18,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = "echowipe@gmail.com"
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
+app.config['MAIL_PASSWORD'] = "fcri sitd zmnw rpqn"
 app.config['MAIL_DEFAULT_SENDER'] = "echowipe@gmail.com"
 
 mail = Mail(app)
