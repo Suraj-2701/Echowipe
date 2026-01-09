@@ -62,7 +62,7 @@ if __name__ == '__main__':
     model_path = args.model_path
 
     # load model config
-    dir_yaml = r"D:\Echowipe\Synthetic-Voice-Detection\model_config_RawNet.yaml"
+    dir_yaml = "model_config_RawNet.yaml"
 
     with open(dir_yaml, 'r') as f_yaml:
         parser1 = yaml.safe_load(f_yaml)

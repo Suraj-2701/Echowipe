@@ -1,12 +1,13 @@
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-import json, os, random, uuid, sys
+import json, os, random, uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask_mail import Mail, Message
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 # ---------------- MAIL CONFIG ----------------
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -20,8 +21,7 @@ app.config['MAIL_DEFAULT_SENDER'] = "echowipe@gmail.com"
 mail = Mail(app)
 
 # ---------------- PATHS ----------------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from model_service import detect_voice
 
@@ -29,7 +29,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # ---------------- DATABASE ----------------
-USER_DB = "users.json"
+USER_DB = os.path.join(BASE_DIR, "users.json")
 otp_store = {}
 
 def load_users():
@@ -42,7 +42,7 @@ def save_users(users):
     with open(USER_DB, "w") as f:
         json.dump(users, f, indent=4)
 
-# ---------------- ROUTES ----------------
+# ---------------- HOME (LOGIN / SIGNUP) ----------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     users = load_users()
@@ -58,9 +58,9 @@ def index():
             session["email"] = email
             return redirect(url_for("dashboard"))
         else:
-            flash("Invalid email or password", "error")
+            flash("Invalid email or password", "danger")
 
-    # ---------- SIGNUP + OTP ----------
+    # ---------- SIGNUP ----------
     if request.method == "POST" and request.form.get("action") == "signup":
         email = request.form.get("signup_email")
         otp_input = request.form.get("otp_code")
@@ -74,18 +74,17 @@ def index():
             agree = request.form.get("agree")
 
             if not all([first, last, email, password, confirm, agree]):
-                flash("All fields required", "warning")
+                flash("All fields are required", "warning")
 
             elif password != confirm:
-                flash("Passwords do not match", "error")
+                flash("Passwords do not match", "danger")
 
             elif email in users:
-                flash("User already exists", "error")
+                flash("User already exists", "danger")
 
             else:
                 token = str(random.randint(100000, 999999))
 
-                # ✅ STORE OTP
                 otp_store[email] = {
                     "otp": token,
                     "first": first,
@@ -94,38 +93,28 @@ def index():
                 }
 
                 msg = Message(
-                    subject="Email Verification",
-                    recipients=[email]
+                    subject="Echowipe – Email Verification Code",
+                    recipients=[email],
+                    body=f"""
+Hello,
+
+Your Echowipe verification code is: {token}
+
+This code is valid for 10 minutes.
+Do not share it with anyone.
+
+Regards,
+Echowipe Team
+"""
                 )
-                msg = Message(
-    subject="Echowipe – Email Verification Code",
-    recipients=[email]
-)
-
-                msg.body = f"""
-                      Hello,
-                      Thank you for registering with Echowipe.
-
-                      Your email verification code is:
-                      Verification Code: {token}
-
-                      Please enter this code on the Echowipe website to verify your email address.
-                      This code is valid for a 10 min only. Do not share it with anyone.
-                      If you did not request this verification, please ignore this email.
-
-                      Best regards,
-                      Echowipe Team"""
-
-                
 
                 try:
                     mail.send(msg)
                     flash("Verification email sent!", "success")
+                    otp_sent = True
+                    email_for_otp = email
                 except Exception as e:
-                    flash(f"Email error: {str(e)}", "danger")
-
-                otp_sent = True
-                email_for_otp = email
+                    flash("Email sending failed", "danger")
 
         # VERIFY OTP
         else:
@@ -142,7 +131,7 @@ def index():
                 session["email"] = email
                 return redirect(url_for("dashboard"))
             else:
-                flash("Invalid OTP", "error")
+                flash("Invalid OTP", "danger")
                 otp_sent = True
                 email_for_otp = email
 
@@ -155,6 +144,7 @@ def dashboard():
         return redirect(url_for("index"))
     return render_template("dashboard.html")
 
+# ---------------- DETECT ----------------
 # ---------------- DETECT ----------------
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -186,4 +176,5 @@ def detect():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-   app.run(debug=True)
+    app.run(debug=True)
+
