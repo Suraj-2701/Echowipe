@@ -122,14 +122,16 @@ Name :
 <!-- BUTTONS -->
 
 <div class="button-group">
+    
+    <a href="{{ url_for('dashboard') }}" class="back-btn">
+        BACK
+    </a>
 
-<button type="button" class="back-btn" id="backBtn">
-BACK
-</button>
-
-<button type="submit" class="detect-btn-red">
-{{ 'RE-SCAN' if result else 'DETECT VOICE →' }}
-</button>
+    {% if not result %}
+    <button type="submit" class="detect-btn-red">
+        DETECT VOICE →
+    </button>
+    {% endif %}
 
 </div>
 
@@ -143,64 +145,41 @@ BACK
 <!-- ================= JAVASCRIPT ================= -->
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
 
-document.addEventListener("DOMContentLoaded", function(){
+    const input = document.getElementById("fileInput");
+    const workspace = document.getElementById("workspace");
+    const uploadArea = document.getElementById("uploadArea");
 
-const input = document.getElementById("fileInput");
-const workspace = document.getElementById("workspace");
-const uploadArea = document.getElementById("uploadArea");
+    const fileNameDisplay = document.getElementById("fileNameDisplay");
+    const detailName = document.getElementById("detailName");
+    const audioPreview = document.getElementById("audioPreview");
 
-const fileNameDisplay = document.getElementById("fileNameDisplay");
-const detailName = document.getElementById("detailName");
-const audioPreview = document.getElementById("audioPreview");
+    /* NOTE: The 'backBtn' listener is removed. 
+       The HTML now uses <a href="/dashboard"> which handles 
+       the reset by reloading the page.
+    */
 
-const backBtn = document.getElementById("backBtn");
+    /* FILE SELECT (Goes from Page 1 to Page 2) */
+    if (input) {
+        input.addEventListener("change", function() {
+            if (this.files && this.files[0]) {
+                let file = this.files[0];
 
+                // 1. Update the display text with the actual file name
+                fileNameDisplay.innerText = file.name;
+                detailName.innerText = file.name;
 
-/* BACK BUTTON */
+                // 2. Generate a URL for the audio preview so user can hear it
+                let url = URL.createObjectURL(file);
+                audioPreview.src = url;
 
-if(backBtn){
-
-backBtn.addEventListener("click", function(){
-
-uploadArea.style.display = "block";
-workspace.style.display = "none";
-
-input.value = "";
-audioPreview.src = "";
-
-fileNameDisplay.innerText = "";
-detailName.innerText = "";
-
-});
-
-}
-
-
-/* FILE SELECT */
-
-if(input){
-
-input.addEventListener("change", function(){
-
-if(this.files && this.files[0]){
-
-let file = this.files[0];
-
-fileNameDisplay.innerText = file.name;
-detailName.innerText = file.name;
-
-let url = URL.createObjectURL(file);
-audioPreview.src = url;
-
-uploadArea.style.display = "none";
-workspace.style.display = "flex";
-
-}
-
-});
-
-}
+                // 3. UI Transition: Hide Upload, Show Workspace (Page 2)
+                uploadArea.style.display = "none";
+                workspace.style.display = "flex";
+            }
+        });
+    }
 
 });
 

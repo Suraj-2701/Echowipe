@@ -31,3 +31,8 @@ Thumbs.db
 users.json
 
 index.lock
+
+__pycache__/
+*.pyc
+*.pth
+.env
