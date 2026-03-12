@@ -1,58 +1,214 @@
-body {
-    background: linear-gradient(120deg, #020617, #0f172a);
-    font-family: Arial, sans-serif;
-    color: white;
+/* Reset */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI', Arial, sans-serif;
 }
 
-.card {
-    width: 450px;
-    margin: 80px auto;
-    padding: 30px;
-    background: #020617;
-    border-radius: 18px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-    text-align: center;
+body{
+background:#f4f4f6;
+min-height:100vh;
+overflow:hidden;
 }
 
-.title {
-    font-size: 36px;
-    color: #38bdf8;
+/* ================= NAVBAR ================= */
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:white;
+border-bottom:1px solid #eee;
 }
 
-.subtitle {
-    color: #94a3b8;
-    margin-bottom: 25px;
+.logo{
+font-size:24px;
+font-weight:bold;
 }
 
-input[type=file] {
-    width: 100%;
-    padding: 12px;
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    color: white;
-    border-radius: 10px;
+.profile img{
+width:35px;
+height:35px;
+border-radius:50%;
+cursor:pointer;
 }
 
-.button {
-    margin-top: 15px;
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(90deg,#06b6d4,#3b82f6);
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    color: white;
-    cursor: pointer;
+/* ================= PAGE 1 : UPLOAD AREA ================= */
+
+.upload-section{
+text-align:center;
+margin-top:120px;
 }
 
-.output {
-    margin-top: 25px;
+.upload-section h1{
+font-size:42px;
+margin-bottom:10px;
 }
 
-.fake { color: #ef4444; }
-.real { color: #22c55e; }
+.upload-section p{
+color:#666;
+margin-bottom:40px;
+font-size:18px;
+}
 
-.error {
-    margin-top: 20px;
-    color: #ef4444;
+.upload-btn{
+background:#2d39e5;
+color:white;
+padding:18px 55px;
+border-radius:8px;
+cursor:pointer;
+font-size:18px;
+display:inline-block;
+}
+
+.upload-btn:hover{
+    background: #6929df;
+}
+
+.upload-btn input{
+display:none;
+}
+
+/* ================= PAGE 2 : WORKSPACE ================= */
+
+#workspace{
+height:calc(100vh - 70px);
+display:flex;
+justify-content:space-between;
+}
+
+/* MAIN AREA */
+
+.main-content{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#f9f9fb;
+}
+
+.file-card-large{
+background:white;
+padding:60px 100px;
+border-radius:12px;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+text-align:center;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+width:420px;
+background:white;
+padding:40px 30px;
+border-left:1px solid #eee;
+display:flex;
+flex-direction:column;
+}
+
+.sidebar h3{
+font-size:18px;
+margin-bottom:20px;
+}
+
+.sidebar hr{
+border:0;
+border-top:1px solid #eee;
+margin-bottom:25px;
+}
+
+/* RESULT BOX */
+
+.result-box{
+padding:20px;
+border-radius:10px;
+text-align:center;
+margin-bottom:25px;
+}
+
+.fake-bg{
+background:#fff5f5;
+border:1px solid #ffcdd2;
+color:#d32f2f;
+}
+
+.real-bg{
+background:#f1f8e9;
+border:1px solid #c8e6c9;
+color:#388e3c;
+}
+
+/* SIDEBAR ITEMS */
+
+.sidebar-item{
+margin-bottom:30px;
+}
+
+.sidebar-item label{
+display:block;
+font-size:11px;
+font-weight:bold;
+color:#999;
+margin-bottom:10px;
+letter-spacing:0.5px;
+}
+
+.file-details-box{
+background:#fafafa;
+border:1px solid #f0f0f0;
+padding:15px;
+border-radius:8px;
+font-size:14px;
+}
+
+/* ================= BUTTONS ================= */
+
+.button-group{
+margin-top:auto;
+display:flex;
+gap:10px;
+}
+
+.detect-btn-red{
+flex:2;
+background:#4135e5;
+color:white;
+border:none;
+padding:18px;
+border-radius:8px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.detect-btn-red:hover{
+background:#6929df;
+}
+
+
+.back-btn{
+flex:1;
+background:#f0f0f0;
+color:#fc0000;
+border:1px solid #ddd;
+padding:18px;
+border-radius:8px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+text-decoration:none;
+text-align:center;
+}
+
+.back-btn:hover{
+background:#ffffff;
+}
+
+/* ================= AUDIO PLAYER ================= */
+
+audio{
+width:100%;
+height:40px;
 }

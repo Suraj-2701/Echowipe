@@ -1,88 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>EchoWipe Login / Sign Up</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8">
+<title>EchoWipe Login / Sign Up</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
+
 <body>
 
 <div class="container">
+
     <div class="card">
 
-        <h2 id="form-title">Login</h2>
+       
+
+        <h2 id="form-title">
+            {% if otp_sent %}
+                Verify OTP
+            {% else %}
+                Login
+            {% endif %}
+        </h2>
 
         <!-- FLASH MESSAGES -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endwith %}
-
+       {% with messages = get_flashed_messages(with_categories=true) %}
+       {% if messages %}
+       {% for category, message in messages %}
+       <div class="flash {{ category }}">{{ message }}</div>
+       {% endfor %}
+       {% endif %}
+       {% endwith %}
         <!-- LOGIN FORM -->
-        <form method="POST" id="loginForm">
+        <form method="POST" id="loginForm"
+        {% if otp_sent %}style="display:none;"{% endif %}>
+
             <input type="hidden" name="action" value="login">
 
             <div class="input-box">
+                <i class="fa fa-envelope"></i>
                 <input type="email" name="login_email" placeholder="Email" required>
             </div>
 
             <div class="input-box">
+                <i class="fa fa-lock"></i>
                 <input type="password" name="login_password" placeholder="Password" required>
             </div>
 
             <button type="submit">Login</button>
+
         </form>
+
 
         <!-- SIGNUP FORM -->
-        <form method="POST" id="signupForm" style="display:none;">
-            <input type="hidden" name="action" value="signup">
+        <form method="POST" id="signupForm"
+        {% if not otp_sent %}style="display:none;"{% endif %}>
 
-            <div class="input-box">
-                <input type="text" name="first_name" placeholder="First Name" required>
-            </div>
+        <input type="hidden" name="action" value="signup">
 
-            <div class="input-box">
-                <input type="text" name="last_name" placeholder="Last Name" required>
-            </div>
+        {% if otp_sent %}
 
-            <div class="input-box">
-                <input type="email" name="signup_email" placeholder="Email" required>
-            </div>
+        <p>OTP sent to <b>{{ email_for_otp }}</b></p>
 
-            <div class="input-box">
-                <input type="password" name="signup_password" placeholder="Password" required>
-            </div>
+        <input type="hidden" name="signup_email" value="{{ email_for_otp }}">
+     <div class="otp-container">
 
-            <div class="input-box">
-                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            </div>
+        <input type="text" maxlength="1" class="otp-box">
+        <input type="text" maxlength="1" class="otp-box">
+        <input type="text" maxlength="1" class="otp-box">
+        <input type="text" maxlength="1" class="otp-box">
+        <input type="text" maxlength="1" class="otp-box">
+        <input type="text" maxlength="1" class="otp-box">
 
-            <label>
-                <input type="checkbox" name="agree" required>
-                I agree to Terms & Conditions
-            </label>
+      </div>
 
-            <button type="submit">Register</button>
+       <input type="hidden" name="otp_code" id="otp_code">
+
+        <button type="submit">Verify OTP</button>
+
+        {% else %}
+
+        <div class="input-box">
+            <i class="fa fa-user"></i>
+            <input type="text" name="first_name" placeholder="First Name" required>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-user"></i>
+            <input type="text" name="last_name" placeholder="Last Name" required>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-envelope"></i>
+            <input type="email" name="signup_email" placeholder="Email" required>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="signup_password" placeholder="Password" required>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        </div>
+      <div class="terms">
+      <label>
+      <input type="checkbox" name="agree" required>
+      <span>
+      I agree to the 
+      <a href="{{ url_for('terms') }}" target="_blank">Terms & Conditions</a>
+      </span>
+      </label>
+      </div>
+
+        <button type="submit">Register</button>
+
+        {% endif %}
+
         </form>
 
-        <p class="switch">
-            Don't have an account?
-            <span onclick="toggleForm()">Sign Up</span>
+        {% if not otp_sent %}
+        <p class="switch" id="switch-text">
+        Don't have an account?
+        <span onclick="toggleForm()">Sign up</span>
         </p>
+         {% endif %}
 
     </div>
+
 </div>
 
 <script>
+
 let isLogin = true;
-function toggleForm() {
-    isLogin = !isLogin;
-    document.getElementById("loginForm").style.display = isLogin ? "block" : "none";
-    document.getElementById("signupForm").style.display = isLogin ? "none" : "block";
-    document.getElementById("form-title").innerText = isLogin ? "Login" : "Sign Up";
+
+function toggleForm(){
+
+isLogin = !isLogin;
+
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const formTitle = document.getElementById("form-title");
+const switchText = document.getElementById("switch-text");
+
+if(isLogin){
+
+loginForm.style.display = "block";
+signupForm.style.display = "none";
+
+formTitle.innerText = "Login";
+
+switchText.innerHTML =
+"Don't have an account? <span onclick='toggleForm()'>Sign up</span>";
+
 }
+else{
+
+loginForm.style.display = "none";
+signupForm.style.display = "block";
+
+formTitle.innerText = "Sign Up";
+
+switchText.innerHTML =
+"Already have an account? <span onclick='toggleForm()'>Log in</span>";
+
+}
+
+}
+const otpBoxes = document.querySelectorAll(".otp-box");
+const otpHidden = document.getElementById("otp_code");
+
+otpBoxes.forEach((box, index) => {
+
+box.addEventListener("input", () => {
+
+if(box.value.length === 1 && index < otpBoxes.length-1){
+otpBoxes[index+1].focus();
+}
+
+updateOTP();
+
+});
+
+});
+
+function updateOTP(){
+
+let otp = "";
+
+otpBoxes.forEach(box=>{
+otp += box.value;
+});
+
+otpHidden.value = otp;
+
+}
+
 </script>
 
 </body>

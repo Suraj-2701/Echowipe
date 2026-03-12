@@ -1,26 +1,37 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-import json, os, uuid
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+import json, os, random, uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask_mail import Mail, Message
+
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# ---------------- RENDER HEALTH CHECK ----------------
-@app.route("/echowipe")
-def echowipe():
-    return "EchoWipe is running"
+
+# ---------------- MAIL CONFIG ----------------
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = "echowipe@gmail.com"        # ✅ your gmail
+app.config['MAIL_PASSWORD'] = "fcri sitd zmnw rpqn"   # ✅ gmail app password
+app.config['MAIL_DEFAULT_SENDER'] = "echowipe@gmail.com"
+
+mail = Mail(app)
 
 # ---------------- PATHS ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 from model_service import detect_voice
 
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # ---------------- DATABASE ----------------
 USER_DB = os.path.join(BASE_DIR, "users.json")
+otp_store = {}
 
 def load_users():
     if os.path.exists(USER_DB):
@@ -32,10 +43,14 @@ def save_users(users):
     with open(USER_DB, "w") as f:
         json.dump(users, f, indent=4)
 
-# ---------------- HOME ----------------
+# ---------------- HOME (LOGIN / SIGNUP) ----------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     users = load_users()
+    otp_sent = False
+    email_for_otp = ""
+
+
 
     # ---------- LOGIN ----------
     if request.method == "POST" and request.form.get("action") == "login":
@@ -46,36 +61,91 @@ def index():
             session["email"] = email
             return redirect(url_for("dashboard"))
         else:
-            flash("Invalid email or password", "danger")
-
+         flash("Invalid email or password", "danger")
+         return redirect(url_for("index"))
     # ---------- SIGNUP ----------
     if request.method == "POST" and request.form.get("action") == "signup":
-        first = request.form.get("first_name")
-        last = request.form.get("last_name")
         email = request.form.get("signup_email")
-        password = request.form.get("signup_password")
-        confirm = request.form.get("confirm_password")
-        agree = request.form.get("agree")
+        otp_input = request.form.get("otp_code")
 
-        if not all([first, last, email, password, confirm, agree]):
-            flash("All fields are required", "warning")
-        elif password != confirm:
-            flash("Passwords do not match", "danger")
-        elif email in users:
-            flash("User already exists", "danger")
+        # SEND OTP
+        if not otp_input:
+            first = request.form.get("first_name")
+            last = request.form.get("last_name")
+            password = request.form.get("signup_password")
+            confirm = request.form.get("confirm_password")
+            agree = request.form.get("agree")
+
+        
+            if not first or not last or not email or not password or not confirm:
+                flash("All fields are required", "warning")
+                return redirect(url_for("index"))
+
+            elif password != confirm:
+                flash("Passwords do not match", "danger")
+
+            elif email in users:
+                flash("User already exists", "danger")
+
+            else:
+                token = str(random.randint(100000, 999999))
+
+                otp_store[email] = {
+                    "otp": token,
+                    "first": first,
+                    "last": last,
+                    "password": generate_password_hash(password)
+                }
+
+                msg = Message(
+                    subject="Echowipe – Email Verification Code",
+                    recipients=[email],
+                    body=f"""
+Hello,
+
+Your Echowipe verification code is: {token}
+
+This code is valid for 5 minutes.
+Do not share it with anyone.
+
+Regards,
+Echowipe Team
+"""
+                )
+
+                try:
+                    mail.send(msg)
+                    flash("Verification email sent!", "success")
+                    otp_sent = True
+                    email_for_otp = email
+                except Exception as e:
+                    flash("Email sending failed", "danger")
+
+        # VERIFY OTP
         else:
-            users[email] = {
-                "first": first,
-                "last": last,
-                "password": generate_password_hash(password),
-                "created": datetime.now().strftime("%d-%m-%Y %H:%M")
-            }
-            save_users(users)
-            session["email"] = email
-            flash("Signup successful!", "success")
-            return redirect(url_for("dashboard"))
+            if email in otp_store and otp_input == otp_store[email]["otp"]:
+                users[email] = {
+                    "first": otp_store[email]["first"],
+                    "last": otp_store[email]["last"],
+                    "password": otp_store[email]["password"],
+                    "created": datetime.now().strftime("%d-%m-%Y %H:%M")
+                }
+                save_users(users)
+                otp_store.pop(email)
 
-    return render_template("index.html")
+                session["email"] = email
+                return redirect(url_for("dashboard"))
+            else:
+                flash("Invalid OTP", "danger")
+                otp_sent = True
+                email_for_otp = email
+
+    return render_template("index.html", otp_sent=otp_sent, email_for_otp=email_for_otp)
+
+#---------Terms and Condition-----------
+@app.route("/terms")
+def terms():
+ return render_template("terms.html")
 
 # ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
@@ -83,55 +153,42 @@ def dashboard():
     if "email" not in session:
         return redirect(url_for("index"))
     return render_template("dashboard.html")
+#----Profile------
+@app.route('/profile')
+def profile():
+    return render_template("profile.html")
+    
 
-# ---------------- DETECT (WEB) ----------------
+# ---------------- DETECT ----------------
 @app.route("/detect", methods=["POST"])
 def detect():
     if "audio" not in request.files:
         return render_template("dashboard.html", error="No file uploaded")
 
     file = request.files["audio"]
+    if file.filename == "":
+        return render_template("dashboard.html", error="Empty filename")
+
     filename = f"{uuid.uuid4().hex}.wav"
-    path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(path)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
 
     try:
-        fake, real, _ = detect_voice(path)
+        fake, real, raw = detect_voice(file_path)
         result = {
-            "fake": round(fake, 4),
-            "real": round(real, 4),
-            "label": "FAKE (AI)" if fake > real else "REAL"
+            "fake": round(fake, 6),
+            "real": round(real, 6),
+            "label": "FAKE (AI GENERATED)" if fake > real else "REAL VOICE"
         }
+    except Exception as e:
+        return render_template("dashboard.html", error=str(e))
     finally:
-        if os.path.exists(path):
-            os.remove(path)
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
     return render_template("dashboard.html", result=result)
 
-# ---------------- PUBLIC API (JSON) ----------------
-@app.route("/api/detect", methods=["POST"])
-def api_detect():
-    if "audio" not in request.files:
-        return jsonify({"error": "No file"}), 400
 
-    file = request.files["audio"]
-    filename = f"{uuid.uuid4().hex}.wav"
-    path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(path)
-
-    try:
-        fake, real, _ = detect_voice(path)
-        return jsonify({
-            "fake": float(fake),
-            "real": float(real),
-            "label": "FAKE (AI)" if fake > real else "REAL"
-        })
-    finally:
-        if os.path.exists(path):
-            os.remove(path)
-
-# ---------------- LOGOUT ----------------
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("index"))
+# ---------------- RUN ----------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=20000, debug=True)

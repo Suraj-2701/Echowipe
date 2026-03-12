@@ -1,99 +1,233 @@
-body {
-    height: 100vh;
-    background: url("bg1.png") no-repeat center center/cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', sans-serif;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
 }
 
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+body{
+
+height:100vh;
+
+background:url("BG4.png") no-repeat center center/cover;
+
+display:flex;
+justify-content:flex-end;
+align-items:center;
+
+padding-right:120px;
+
+color:#eaf6ff;
+
 }
 
-.card {
-    width: 380px;
-    padding: 35px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(14px);
-    border-radius: 16px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.7);
-    color: white;
-    text-align: center;
+
+
+/* LOGIN CARD */
+
+.card{
+
+width:380px;
+
+padding:40px;
+
+background:linear-gradient(
+180deg,
+#f5f7fb 0%,
+#e8edf4 100%
+);
+
+border-radius:20px;
+
+box-shadow:0 12px 35px rgba(0,0,0,0.35);
+
+text-align:center;
+
 }
 
-.input-box {
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,0.2);
-    margin-bottom: 15px;
-    border-radius: 8px;
-    padding: 12px;
+/* INPUT BOX */
+
+.input-box{
+
+display:flex;
+
+align-items:center;
+
+background:#dfe5ec;
+
+border:1px solid #cfd6de;
+
+margin-bottom:15px;
+
+border-radius:10px;
+
+padding:12px;
+
 }
 
-.input-box i {
-    margin-right: 10px;
+.input-box i{
+
+margin-right:10px;
+
+color:#2f6ea8;
+
 }
 
-.input-box input {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    width: 100%;
-    font-size: 16px;
+.input-box input{
+
+background:transparent;
+
+border:none;
+
+outline:none;
+
+width:100%;
+
+font-size:15px;
+
+color:#2c3e50;
+
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    background: #ff2e2e;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
+/* BUTTON */
+
+button{
+
+width:100%;
+
+padding:13px;
+
+background:#1e1be2e0;
+
+border:none;
+
+border-radius:10px;
+
+font-size:18px;
+
+font-weight:600;
+
+color:white;
+
+cursor:pointer;
+
+margin-top:10px;
+
 }
 
-button:hover {
-    background: #c50000;
+button:hover{
+
+background:#1e1be2;
 }
 
-.options {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 20px;
+/* SIGNUP TEXT */
+
+.switch{
+
+margin-top:10px;
+
+font-size:14px;
+
+color:#6b7c93;
+
 }
 
-.options a {
-    color: #38bdf8;
-    text-decoration: none;
+.switch span{
+
+color:#3b6fa8;
+
+font-weight:600;
+
+cursor:pointer;
+
 }
 
-.switch {
-    margin-top: 15px;
-    font-size: 14px;
+/* SWITCH */
+
+.switch{
+
+margin-top:15px;
+font-size:14px;
+
 }
 
-.switch span {
-    color: #38bdf8;
-    cursor: pointer;
-    font-weight: bold;
+.switch span{
+
+color:#38bdf8;
+cursor:pointer;
+font-weight:bold;
+
 }
 
-.flash {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+/* FLASH */
+
+.flash{
+
+padding:5px;
+margin-bottom:5px;
+
 }
 
-.flash.success { background: rgba(0,255,0,0.2); color: white;}
-.flash.error { background: rgba(255,0,0,0.2); color: white;}
-.flash.warning { background: rgba(255,255,0,0.2); color: white;}
+.flash.success{
+font-size: 15px;
+color: #18f804ef;
+}
 
+.flash.danger{
+font-size: 15px;
+color: #fa0202b7;
+}
+.flash.warning{
+font-size: 15px;
+color: #f80202d2;
+}
 
+/* TERMS & CONDITIONS */
+
+.terms{
+text-align:left;
+margin:10px 0 15px 0;
+font-size:14px;
+color:#2e4f70;
+}
+
+.terms input{
+margin-right:8px;
+cursor:pointer;
+}
+
+.terms span{
+color:#2c3e50;
+}
+
+#form-title{
+text-align:center;
+color:#1e1be2e0;
+margin-bottom:20px;
+font-size:28px;
+display:block;
+}
+
+/* OTP BOXES */
+
+.otp-container{
+display:flex;
+justify-content:space-between;
+margin:2px 0;
+}
+
+.otp-box{
+width:45px;
+height:50px;
+text-align:center;
+font-size:22px;
+border:2px solid #cfd6de;
+border-radius:8px;
+outline:none;
+background:#dfe5ec;
+color:#2c3e50;
+}
+
+.otp-box:focus{
+border-color:#1e1be2;
+}
