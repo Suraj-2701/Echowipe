@@ -5,23 +5,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Echowipe Voice Detection</title>
-
+<title>Echowipe/Home</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
 
 </head>
 
 <body>
-
-<!-- NAVBAR -->
 <div class="navbar">
-    <div class="logo">Echowipe</div>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='MainLogo.png') }}" alt="Echowipe Logo" class="nav-logo-img">
+        <span class="logo-text">Echowipe</span>
+    </div>
 
     <div class="profile">
         <img src="https://i.pravatar.cc/40" alt="profile">
     </div>
 </div>
-
 
 <!-- FORM -->
 <form action="/detect" method="POST" enctype="multipart/form-data" id="uploadForm">
@@ -47,17 +47,49 @@ Select Audio File
 
 <div id="workspace" style="display: {{ 'flex' if result else 'none' }};">
 
-
-<!-- MAIN CONTENT -->
 <div class="main-content">
 
 <div class="file-card-large">
 
-<img src="{{ url_for('static', filename='LogoM.png') }}" width="70">
+{% if result %}
 
-<p id="fileNameDisplay" style="margin-top:15px; font-weight:bold;">
+<div class="center-result {{ 'fake-bg' if result.label.startswith('FAKE') else 'real-bg' }}">
+
+<h3>DETECTION RESULT</h3>
+<h1>{{ result.label }}</h1>
+
+<p>
+Confidence :
+{{ result.fake if result.label.startswith('FAKE') else result.real }}
+</p>
+
+</div>
+
+{% else %}
+
+<!-- LOGO -->
+<div id="logoSection">
+
+<img src="{{ url_for('static', filename='LogoM.png') }}" width="80">
+
+<p id="fileNameDisplay" style="margin-top:15px;font-weight:bold;">
 {{ filename if filename else "" }}
 </p>
+
+</div>
+
+<!-- LOADING DOTS -->
+<div id="loadingDots" class="loading-dots" style="display:none;">
+
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+
+<p class="loading-text">Analyzing Audio...</p>
+
+</div>
+
+{% endif %}
 
 </div>
 
@@ -71,25 +103,7 @@ Select Audio File
 <hr>
 
 
-<!-- RESULT -->
-{% if result %}
 
-<div class="result-box {{ 'fake-bg' if result.label.startswith('FAKE') else 'real-bg' }}">
-
-<label style="color: inherit;">DETECTION RESULT</label>
-
-<h2 style="margin-top:5px;">
-{{ result.label }}
-</h2>
-
-<p style="font-size:13px;">
-Confidence :
-{{ result.fake if result.label.startswith('FAKE') else result.real }}
-</p>
-
-</div>
-
-{% endif %}
 
 
 <!-- AUDIO PREVIEW -->
@@ -128,13 +142,14 @@ Name :
     </a>
 
     {% if not result %}
-    <button type="submit" class="detect-btn-red">
-        DETECT VOICE →
-    </button>
+   <button type="submit" class="detect-btn-red" onclick="showDetection()">
+DETECT VOICE →
+</button>
     {% endif %}
 
 </div>
 
+</div>
 </div>
 </div>
 
@@ -143,43 +158,50 @@ Name :
 
 
 <!-- ================= JAVASCRIPT ================= -->
-
 <script>
+
+/* DETECTION ANIMATION */
+function showDetection(){
+
+document.getElementById("logoSection").style.display="none";
+document.getElementById("loadingDots").style.display="flex";
+
+}
+
+/* PAGE LOGIC */
+
 document.addEventListener("DOMContentLoaded", function() {
 
-    const input = document.getElementById("fileInput");
-    const workspace = document.getElementById("workspace");
-    const uploadArea = document.getElementById("uploadArea");
+const input = document.getElementById("fileInput");
+const workspace = document.getElementById("workspace");
+const uploadArea = document.getElementById("uploadArea");
 
-    const fileNameDisplay = document.getElementById("fileNameDisplay");
-    const detailName = document.getElementById("detailName");
-    const audioPreview = document.getElementById("audioPreview");
+const fileNameDisplay = document.getElementById("fileNameDisplay");
+const detailName = document.getElementById("detailName");
+const audioPreview = document.getElementById("audioPreview");
 
-    /* NOTE: The 'backBtn' listener is removed. 
-       The HTML now uses <a href="/dashboard"> which handles 
-       the reset by reloading the page.
-    */
+/* FILE SELECT */
 
-    /* FILE SELECT (Goes from Page 1 to Page 2) */
-    if (input) {
-        input.addEventListener("change", function() {
-            if (this.files && this.files[0]) {
-                let file = this.files[0];
+if (input) {
+input.addEventListener("change", function() {
 
-                // 1. Update the display text with the actual file name
-                fileNameDisplay.innerText = file.name;
-                detailName.innerText = file.name;
+if (this.files && this.files[0]) {
 
-                // 2. Generate a URL for the audio preview so user can hear it
-                let url = URL.createObjectURL(file);
-                audioPreview.src = url;
+let file = this.files[0];
 
-                // 3. UI Transition: Hide Upload, Show Workspace (Page 2)
-                uploadArea.style.display = "none";
-                workspace.style.display = "flex";
-            }
-        });
-    }
+fileNameDisplay.innerText = file.name;
+detailName.innerText = file.name;
+
+let url = URL.createObjectURL(file);
+audioPreview.src = url;
+
+uploadArea.style.display = "none";
+workspace.style.display = "flex";
+
+}
+
+});
+}
 
 });
 

@@ -59,7 +59,7 @@ def index():
 
         if email in users and check_password_hash(users[email]["password"], password):
             session["email"] = email
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("splash"))
         else:
          flash("Invalid email or password", "danger")
          return redirect(url_for("index"))
@@ -134,7 +134,7 @@ Echowipe Team
                 otp_store.pop(email)
 
                 session["email"] = email
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("splash"))
             else:
                 flash("Invalid OTP", "danger")
                 otp_sent = True
@@ -146,6 +146,13 @@ Echowipe Team
 @app.route("/terms")
 def terms():
  return render_template("terms.html")
+
+ # ---------------- SPLASH SCREEN ----------------
+@app.route("/splash")
+def splash():
+    if "email" not in session:
+        return redirect(url_for("index"))
+    return render_template("splash.html")
 
 # ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
