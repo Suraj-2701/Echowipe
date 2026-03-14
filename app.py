@@ -177,22 +177,45 @@ def splash():
 def dashboard():
     if "email" not in session:
         return redirect(url_for("index"))
-    return render_template("dashboard.html")
-#----Profile------
-@app.route('/profile')
-def profile():
-    return render_template("profile.html")
+    
+    # Load all users and get data for the logged-in session
+    users = load_users()
+    user_email = session["email"]
+    user_data = users.get(user_email)
+
+    # Pass the user data and email to the dashboard template
+    return render_template("dashboard.html", user=user_data, email=user_email)
+
     
 
 # ---------------- DETECT ----------------
 @app.route("/detect", methods=["POST"])
 def detect():
+
+    if "email" not in session:
+        return redirect(url_for("index"))
+
+    users = load_users()
+    user_email = session["email"]
+    user_data = users.get(user_email)
+
     if "audio" not in request.files:
-        return render_template("dashboard.html", error="No file uploaded")
+        return render_template(
+            "dashboard.html",
+            error="No file uploaded",
+            user=user_data,
+            email=user_email
+        )
 
     file = request.files["audio"]
+
     if file.filename == "":
-        return render_template("dashboard.html", error="Empty filename")
+        return render_template(
+            "dashboard.html",
+            error="Empty filename",
+            user=user_data,
+            email=user_email
+        )
 
     filename = f"{uuid.uuid4().hex}.wav"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
@@ -200,36 +223,63 @@ def detect():
 
     try:
         fake, real, raw = detect_voice(file_path)
+
         result = {
             "fake": round(fake, 6),
             "real": round(real, 6),
             "label": "FAKE (AI GENERATED)" if fake > real else "REAL VOICE"
         }
+
     except Exception as e:
-        return render_template("dashboard.html", error=str(e))
+        return render_template(
+            "dashboard.html",
+            error=str(e),
+            user=user_data,
+            email=user_email
+        )
+
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
+
     history = load_history()
 
     history.append({
-     "file": file.filename,
-     "label": result["label"],
-     "fake": result["fake"],
-     "real": result["real"],
-     "time": datetime.now().strftime("%d-%m-%Y %H:%M")
-      })
+        "file": file.filename,
+        "label": result["label"],
+        "fake": result["fake"],
+        "real": result["real"],
+        "time": datetime.now().strftime("%d-%m-%Y %H:%M")
+    })
 
     save_history(history)
 
-    return render_template("dashboard.html", result=result)
-
+    return render_template(
+        "dashboard.html",
+        result=result,
+        user=user_data,
+        email=user_email
+    )
 #---------------- HISTORY -------------
 @app.route("/history")
 def history():
+
+    if "email" not in session:
+        return redirect(url_for("index"))
+
     data = load_history()
     data.reverse()
-    return render_template("history.html", scans=data)
+
+    users = load_users()
+    user_email = session["email"]
+    user_data = users.get(user_email)
+
+    return render_template(
+        "history.html",
+        scans=data,
+        user=user_data,
+        email=user_email
+    )
 import csv
 from flask import Response
 
@@ -284,6 +334,153 @@ def export_pdf():
         download_name="echowipe_history.pdf",
         mimetype="application/pdf"
     )
+@app.context_processor
+def inject_user():
+
+    if "email" in session:
+        users = load_users()
+        email = session["email"]
+        user = users.get(email)
+
+        return dict(user=user, email=email)
+
+    return dict(user=None, email=None)
+    
+# ---------------- HELP & SUPPORT ----------------
+@app.route("/help")
+def help():
+    if "email" not in session:
+        return redirect(url_for("index"))
+    
+    users = load_users()
+    user_data = users.get(session["email"])
+    
+    # We pass 'user' so the HTML can do {{ user.first }}
+    return render_template("help.html", user=user_data, email=session["email"])
+
+# --- FORGOT PASSWORD (SEND OTP) ---
+@app.route("/forgot-password-otp")
+def forgot_password_otp():
+    if "email" not in session:
+        return redirect(url_for("index"))
+    
+    users = load_users()
+    email = session["email"]
+    user_data = users.get(email) # नॅव्हबारसाठी डेटा मिळवा
+    
+    token = str(random.randint(100000, 999999))
+    otp_store[email] = {"otp": token}
+
+    msg = Message(
+        subject="Echowipe – Password Reset Code",
+        recipients=[email],
+        body=f"Your code to reset your Echowipe password is: {token}\n\nIf you did not request this, please secure your account."
+    )
+    
+    try:
+        mail.send(msg)
+        flash("OTP sent to your email!", "success")
+        # बदल: इथे user=user_data आणि email=email पाठवा जेणेकरून नॅव्हबार दिसेल
+        return render_template("verify_forgot_otp.html", user=user_data, email=email)
+    except Exception as e:
+        flash("Failed to send email.", "danger")
+        return redirect(url_for("change_password"))
+
+# --- VERIFY FORGOT OTP ---
+@app.route("/verify-reset-otp", methods=["POST"])
+def verify_reset_otp():
+    if "email" not in session:
+        return redirect(url_for("index"))
+        
+    users = load_users()
+    email = session.get("email")
+    user_data = users.get(email) # नॅव्हबारसाठी डेटा मिळवा
+    
+    otp_input = request.form.get("otp_code")
+    new_pass = request.form.get("new_password")
+
+    if email in otp_store and otp_input == otp_store[email]["otp"]:
+        users[email]["password"] = generate_password_hash(new_pass)
+        save_users(users)
+        otp_store.pop(email)
+        flash("Password reset successfully!", "success")
+        return redirect(url_for("dashboard"))
+    else:
+        flash("Invalid OTP code.", "danger")
+        # बदल: एरर आल्यावर पुन्हा डेटा पाठवावा लागतो जेणेकरून नॅव्हबार टिकून राहील
+        return render_template("verify_forgot_otp.html", user=user_data, email=email)
+    
+  # ---- change password ------  
+@app.route("/change-password", methods=["GET", "POST"])
+def change_password():
+    if "email" not in session:
+        return redirect(url_for("index"))
+
+    users = load_users()
+    email = session["email"]
+    user_data = users.get(email)
+
+    if request.method == "POST":
+        old_pass = request.form.get("old_password")
+        new_pass = request.form.get("new_password")
+        confirm_pass = request.form.get("confirm_password")
+
+        if not check_password_hash(user_data["password"], old_pass):
+            flash("Current password is incorrect", "danger")
+        elif new_pass != confirm_pass:
+            flash("New passwords do not match", "danger")
+        else:
+            user_data["password"] = generate_password_hash(new_pass)
+            users[email] = user_data
+            save_users(users)
+            flash("Password updated successfully!", "success")
+            return redirect(url_for("dashboard"))
+
+    # IMPORTANT: Ensure this matches your filename: change_password.html
+    return render_template("change_password.html", user=user_data, email=email)
+
+# ---- Profile ------
+@app.route('/profile')
+def profile():
+    if "email" not in session:
+        return redirect(url_for("index"))
+    
+    users = load_users()
+    user_email = session["email"]
+    user_data = users.get(user_email)
+
+    if not user_data:
+        return redirect(url_for("index"))
+
+    # Pass the user dictionary to the template
+    return render_template("profile.html", user=user_data, email=user_email)
+
+# ---- Edit Profile ------
+@app.route("/edit-profile", methods=["GET", "POST"])
+def edit_profile():
+    if "email" not in session:
+        return redirect(url_for("index"))
+
+    users = load_users()
+    email = session["email"]
+    user_data = users.get(email)
+
+    if request.method == "POST":
+        new_first = request.form.get("first_name")
+        new_last = request.form.get("last_name")
+
+        if not new_first or not new_last:
+            flash("Names cannot be empty", "danger")
+        else:
+            # Update the data
+            users[email]["first"] = new_first
+            users[email]["last"] = new_last
+            save_users(users)
+            
+            flash("Profile updated successfully!", "success")
+            return redirect(url_for("dashboard"))
+
+    return render_template("edit_profile.html", user=user_data, email=email)
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":

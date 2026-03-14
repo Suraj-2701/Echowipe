@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Reset - Echowipe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+    <style>
+        body { font-family:'Poppins', sans-serif; background:linear-gradient(135deg,#eef3ff,#f9fbff); margin:0; }
+        .page-content { display:flex; justify-content:center; align-items:center; height:85vh; }
+        .container { background:white; padding:40px; border-radius:18px; width:90%; max-width:400px; box-shadow:0 15px 40px rgba(0,0,0,0.1); text-align:center; }
+        input { width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
+        .btn { width:100%; padding:14px; background:#4facfe; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; transition: 0.3s; }
+        .btn:hover { background: #0084ff; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">Echowipe</div>
+    <div class="profile">
+        <div class="profile-icon-circle" id="profileIcon">
+            {{ user.first[0] | upper if user else '?' }}
+        </div>
+
+        <div class="profile-menu" id="profileMenu">
+            <div class="profile-top">
+                <div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+                <div class="profile-name">{{ user.first }} {{ user.last }}</div>
+                <div class="profile-email">{{ email }}</div>
+            </div>
+            <hr>
+            <div class="menu-item" onclick="window.location.href='/profile'">👤 Edit Profile</div>
+            <div class="menu-item" onclick="window.location.href='/change-password'">🔒 Change Password</div>
+            <div class="menu-item" onclick="window.location.href='/help'">❓ Help & Support</div>
+            <div class="menu-item logout" onclick="logoutUser()">⎋ Logout</div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <h2>Reset Password</h2>
+        <br>
+        <p>Enter the OTP sent to your email and your new password.</p>
+        <br>
+        <form action="/verify-reset-otp" method="POST">
+            <input type="text" name="otp_code" placeholder="Enter 6-digit OTP" required>
+            <input type="password" name="new_password" placeholder="Enter New Password" required>
+            <button type="submit" class="btn">Reset Password</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const icon = document.getElementById("profileIcon");
+    const menu = document.getElementById("profileMenu");
+
+    if(icon) {
+        icon.onclick = (e) => {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        };
+    }
+
+    document.onclick = () => { if(menu) menu.style.display = "none"; };
+
+    function logoutUser() {
+        if(confirm("Are you sure you want to logout?")) {
+            window.location.href="/";
+        }
+    }
+</script>
+
+<script>
+    // Logic: Trigger browser popup for Flash Success messages
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if category == "success" %}
+            alert("✅ {{ message }}");
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    // Your existing profile toggle script...
+    const icon = document.getElementById("profileIcon");
+    const menu = document.getElementById("profileMenu");
+    if(icon) {
+        icon.onclick = (e) => {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        };
+    }
+    document.onclick = () => { if(menu) menu.style.display = "none"; };
+    function logoutUser() {
+        if(confirm("Are you sure you want to logout?")) {
+            window.location.href="/";
+        }
+    }
+</script>
+
+</body>
+</html>

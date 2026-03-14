@@ -30,7 +30,8 @@ Thumbs.db
 # -------- Database / Secrets --------
 users.json
 history.json
-
+history.json
+*.json
 index.lock
 
 __pycache__/

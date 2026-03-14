@@ -10,6 +10,9 @@ Flask
 Flask-Mail
 Werkzeug
 gunicorn
+torch
+torchaudio
+torchvision
 
 resend
 flask
