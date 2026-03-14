@@ -31,7 +31,7 @@ Thumbs.db
 users.json
 history.json
 history.json
-
+*.json
 index.lock
 
 __pycache__/
