@@ -14,13 +14,54 @@ overflow:hidden;
 
 /* ================= NAVBAR ================= */
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 40px;
-    background: white;
-    border-bottom: 1px solid #eee;
+/* NAVBAR */
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px 40px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* LEFT SIDE */
+
+.left-nav{
+display:flex;
+align-items:center;
+gap:40px;
+}
+
+
+.logo-text{
+font-size:22px;
+font-weight:700;
+color:#8e2de2;
+}
+
+/* NAV LINKS */
+
+.nav-links{
+display:flex;
+gap:25px;
+}
+
+.nav-links a{
+text-decoration:none;
+font-weight:500;
+color:#333;
+}
+
+.nav-links a:hover{
+color:#6C63FF;
+}
+
+/* PROFILE */
+
+.profile img{
+width:35px;
+border-radius:50%;
 }
 
 /* ADD THIS NEW BLOCK BELOW */
@@ -31,7 +72,7 @@ overflow:hidden;
 }
 
 .nav-logo-img {
-    height: 60px; /* Adjust this to make the logo look good in the bar */
+    height: 50px; /* Adjust this to make the logo look good in the bar */
     width: auto;
 }
 
@@ -335,3 +376,113 @@ top:30px;
 font-size:14px;
 color:#777;
 }
+
+/* HISTORY PAGE */
+/* HISTORY PAGE */
+
+.history-header{
+text-align:center;
+margin-top:40px;
+}
+
+.history-header h1{
+font-size:32px;
+}
+
+.history-header p{
+color:#777;
+}
+
+/* TABLE CONTAINER */
+
+.history-container{
+width:80%;
+margin:40px auto;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 20px rgba(0,0,0,0.08);
+padding:20px;
+}
+
+/* TABLE */
+
+.history-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.history-table th{
+padding:14px;
+text-align:left;
+border-bottom:2px solid #eee;
+}
+
+.history-table td{
+padding:14px;
+border-bottom:1px solid #eee;
+}
+
+.history-table tr:hover{
+background:#f8f8ff;
+}
+
+/* BADGES */
+
+.badge{
+padding:5px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+}
+
+.badge.fake{
+background:#ffe5e5;
+color:#e63946;
+}
+
+.badge.real{
+background:#e7ffe7;
+color:#2a9d8f;
+}
+
+.fa-music{
+margin-right:8px;
+color:#6C63FF;
+}
+
+.history-tools{
+width:80%;
+margin:20px auto;
+display:flex;
+justify-content:flex-end;
+}
+
+.history-tools{
+width:80%;
+margin:20px auto;
+display:flex;
+justify-content:flex-end;
+gap:10px;
+}
+
+.export-btn{
+background:#6C63FF;
+color:white;
+padding:8px 14px;
+border-radius:6px;
+text-decoration:none;
+font-size:14px;
+}
+
+.export-btn:hover{
+background:#3931d4;
+}
+
+.export-btn.pdf{
+background:#df4552;
+}
+
+.export-btn.pdf:hover{
+background:#d41a29;
+}
+

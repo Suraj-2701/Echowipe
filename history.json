@@ -1,0 +1,23 @@
+[
+    {
+        "file": "Recording.wav",
+        "label": "REAL VOICE",
+        "fake": 0.005298,
+        "real": 0.994702,
+        "time": "14-03-2026 00:05"
+    },
+    {
+        "file": "file_example_WAV_10MG.wav",
+        "label": "FAKE (AI GENERATED)",
+        "fake": 8.613124,
+        "real": 0.999914,
+        "time": "14-03-2026 00:12"
+    },
+    {
+        "file": "file_example_WAV_10MG.wav",
+        "label": "FAKE (AI GENERATED)",
+        "fake": 8.613124,
+        "real": 0.999914,
+        "time": "14-03-2026 00:53"
+    }
+]
