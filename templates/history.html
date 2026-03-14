@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Echowipe | Detection History</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="left-nav">
+
+<div class="logo-container">
+<img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+<span class="logo-text">Echowipe</span>
+</div>
+
+<div class="nav-links">
+<a href="{{ url_for('dashboard') }}">Home</a>
+<a href="{{ url_for('history') }}" class="active">Results</a>
+</div>
+
+</div>
+
+<div class="profile">
+<img src="https://i.pravatar.cc/40">
+</div>
+
+</div>
+
+<!-- HEADER -->
+
+<div class="history-header">
+
+<h1>Detection History</h1>
+<p>All previous AI voice detections</p>
+
+</div>
+<div class="history-tools">
+
+<a href="{{ url_for('export_csv') }}" class="export-btn">
+<i class="fa-solid fa-file-csv"></i> Export CSV
+</a>
+
+<a href="{{ url_for('export_pdf') }}" class="export-btn pdf">
+<i class="fa-solid fa-file-pdf"></i> Export PDF
+</a>
+
+</div>
+
+<!-- HISTORY TABLE -->
+
+<div class="history-container">
+
+<table class="history-table">
+
+<thead>
+
+<tr>
+<th>File</th>
+<th>Date</th>
+<th>Result</th>
+<th>Fake Score</th>
+<th>Real Score</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for scan in scans %}
+
+<tr>
+
+<td>
+<i class="fa-solid fa-music"></i>
+{{ scan.file }}
+</td>
+
+<td>{{ scan.time }}</td>
+
+<td>
+
+{% if scan.label.startswith('FAKE') %}
+
+<span class="badge fake">FAKE</span>
+
+{% else %}
+
+<span class="badge real">REAL</span>
+
+{% endif %}
+
+</td>
+
+<td>{{ scan.fake }}</td>
+
+<td>{{ scan.real }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</body>
+</html>

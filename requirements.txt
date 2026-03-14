@@ -14,3 +14,4 @@ gunicorn
 resend
 flask
 werkzeug
+ reportlab
