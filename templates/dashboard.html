@@ -13,14 +13,25 @@
 
 <body>
 <div class="navbar">
-    <div class="logo-container">
-        <img src="{{ url_for('static', filename='MainLogo.png') }}" alt="Echowipe Logo" class="nav-logo-img">
-        <span class="logo-text">Echowipe</span>
-    </div>
 
-    <div class="profile">
-        <img src="https://i.pravatar.cc/40" alt="profile">
-    </div>
+<div class="left-nav">
+
+<div class="logo-container">
+<img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+<span class="logo-text">Echowipe</span>
+</div>
+
+<div class="nav-links">
+<a href="{{ url_for('dashboard') }}">Home</a>
+<a href="{{ url_for('history') }}">Results</a>
+</div>
+
+</div>
+
+<div class="profile">
+<img src="https://i.pravatar.cc/40">
+</div>
+
 </div>
 
 <!-- FORM -->
@@ -129,6 +140,7 @@ Name :
 {{ filename if filename else "" }}
 </span>
 </p>
+
 
 </div>
 

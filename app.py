@@ -4,6 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask_mail import Mail, Message
 
+from reportlab.platypus import SimpleDocTemplate, Table
+from reportlab.lib.pagesizes import letter
+import io
+from flask import send_file
+
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -28,6 +33,19 @@ from model_service import detect_voice
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# ---------------History Path------------
+HISTORY_DB = os.path.join(BASE_DIR, "history.json")
+
+def load_history():
+    if os.path.exists(HISTORY_DB):
+        with open(HISTORY_DB,"r") as f:
+            return json.load(f)
+    return []
+
+def save_history(data):
+    with open(HISTORY_DB,"w") as f:
+        json.dump(data,f,indent=4)
 
 # ---------------- DATABASE ----------------
 USER_DB = os.path.join(BASE_DIR, "users.json")
@@ -192,9 +210,80 @@ def detect():
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
+    history = load_history()
+
+    history.append({
+     "file": file.filename,
+     "label": result["label"],
+     "fake": result["fake"],
+     "real": result["real"],
+     "time": datetime.now().strftime("%d-%m-%Y %H:%M")
+      })
+
+    save_history(history)
 
     return render_template("dashboard.html", result=result)
 
+#---------------- HISTORY -------------
+@app.route("/history")
+def history():
+    data = load_history()
+    data.reverse()
+    return render_template("history.html", scans=data)
+import csv
+from flask import Response
+
+# --- Export csv and pdf-----
+@app.route("/export-csv")
+def export_csv():
+
+    data = load_history()
+
+    def generate():
+        yield "File,Result,Fake Score,Real Score,Date\n"
+        for row in data:
+            yield f"{row['file']},{row['label']},{row['fake']},{row['real']},{row['time']}\n"
+
+    return Response(
+        generate(),
+        mimetype="text/csv",
+        headers={"Content-Disposition":"attachment;filename=echowipe_history.csv"}
+    )
+
+
+
+@app.route("/export-pdf")
+def export_pdf():
+
+    data = load_history()
+
+    buffer = io.BytesIO()
+
+    pdf = SimpleDocTemplate(buffer, pagesize=letter)
+
+    table_data = [["File","Result","Fake Score","Real Score","Date"]]
+
+    for row in data:
+        table_data.append([
+            row["file"],
+            row["label"],
+            row["fake"],
+            row["real"],
+            row["time"]
+        ])
+
+    table = Table(table_data)
+
+    pdf.build([table])
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="echowipe_history.pdf",
+        mimetype="application/pdf"
+    )
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
