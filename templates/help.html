@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Help & Support</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+
+<style>
+
+/* PAGE CONTENT */
+
+body{
+font-family:'Poppins', sans-serif;
+margin:0;
+background:linear-gradient(135deg,#eef3ff,#f9fbff);
+}
+
+/* MAIN HELP AREA */
+
+.help-page{
+padding-top:45px;
+padding-bottom:60px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* CARD */
+
+.container{
+background:white;
+padding:50px;
+border-radius:18px;
+max-width:820px;
+width:90%;
+box-shadow:0 15px 40px rgba(0,0,0,0.12);
+}
+
+
+/* TITLE */
+
+h2{
+font-size:36px;
+margin-bottom:25px;
+text-align:center;
+color:#2c3e50;
+}
+
+/* SECTION HEADINGS */
+
+h3{
+font-size:22px;
+margin-top:25px;
+margin-bottom:10px;
+color:#4facfe;
+}
+
+/* PARAGRAPH */
+
+p{
+font-size:17px;
+color:#555;
+line-height:1.8;
+}
+
+/* LIST */
+
+ul{
+padding-left:25px;
+margin-top:10px;
+}
+
+li{
+font-size:17px;
+margin-bottom:10px;
+color:#444;
+}
+
+/* CONTACT BOX */
+
+.contact{
+background:#f2f6ff;
+padding:18px;
+border-radius:10px;
+margin-top:12px;
+font-size:17px;
+font-weight:500;
+color:#333;
+border-left:5px solid #4facfe;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+<!-- LEFT SIDE -->
+<div class="left-nav">
+
+<div class="logo-container">
+<img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+<span class="logo-text">Echowipe</span>
+</div>
+
+<div class="nav-links">
+<a href="{{ url_for('dashboard') }}">Home</a>
+<a href="{{ url_for('history') }}">Results</a>
+</div>
+
+</div>
+
+
+<!-- RIGHT SIDE PROFILE -->
+<div class="profile">
+
+<div id="profileIcon" class="profile-icon-circle">
+{{ user.first[0] | upper if user else '?' }}
+</div>
+
+<!-- PROFILE DROPDOWN -->
+<div class="profile-menu" id="profileMenu">
+
+<div class="profile-top">
+<div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+<div class="profile-name">{{ user.first }} {{ user.last }}</div>
+<div class="profile-email">{{ email }}</div>
+</div>
+
+<hr>
+
+<div class="menu-item" onclick="window.location.href='/edit-profile'">
+👤 Edit Profile
+</div>
+
+<div class="menu-item" onclick="window.location.href='/change-password'">
+🔒 Change Password
+</div>
+
+<div class="menu-item" onclick="window.location.href='/help'">
+❓ Help & Support
+</div>
+
+<div class="menu-item logout" onclick="logoutUser()">
+⎋ Logout
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- HELP CONTENT -->
+
+<div class="help-page">
+
+<div class="container">
+
+<h2>Help & Support</h2>
+
+<h3>About the System</h3>
+
+<p>
+This AI Voice Fraud Detection System detects fake or deepfake voice recordings
+using artificial intelligence technology.
+</p>
+
+<h3>How to Use</h3>
+
+<ul>
+<li>Upload a voice recording.</li>
+<li>Click on <b>Detect Voice</b>.</li>
+<li>The system analyzes the audio.</li>
+<li>You will see whether the voice is <b>Real</b> or <b>AI Generated</b>.</li>
+</ul>
+
+<h3>Contact Support</h3>
+
+<div class="contact">
+Email : echowipe@gmail.com
+</div>
+
+</div>
+
+</div>
+
+<!-- PROFILE POPUP SCRIPT -->
+
+<script>
+
+const icon = document.getElementById("profileIcon");
+const menu = document.getElementById("profileMenu");
+
+icon.addEventListener("click", function(e){
+e.stopPropagation();
+menu.style.display =
+menu.style.display === "block" ? "none" : "block";
+});
+
+document.addEventListener("click", function(){
+menu.style.display = "none";
+});
+
+</script>
+
+<!-- LOGOUT -->
+
+<script>
+
+function logoutUser(){
+
+let confirmLogout = confirm("Are you sure you want to logout?");
+
+if(confirmLogout){
+alert("Logout Successful");
+window.location.href="/";
+}
+
+}
+
+</script>
+
+</body>
+</html>

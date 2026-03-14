@@ -57,11 +57,153 @@ color:#333;
 color:#6C63FF;
 }
 
-/* PROFILE */
 
-.profile img{
-width:35px;
-border-radius:50%;
+/* ================= PROFILE SCREEN ================= */
+
+/* PROFILE POPUP */
+.profile-menu {
+    position: absolute;
+    right: 42px;
+    top: 70px; /* Increased slightly for better spacing */
+    width: 320px; /* Slightly wider for a premium feel */
+    background: rgba(255, 255, 255, 0.98); /* Glass effect */
+    border-radius: 20px; /* More rounded like modern Chrome */
+    padding: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12); /* Softer, deeper shadow */
+    font-family: 'Poppins', sans-serif;
+    display: none;
+    z-index: 1000;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    /* ANIMATION TRIGGER */
+    transform-origin: top right;
+    animation: popupFade 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Opening Animation */
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* CENTER PROFILE INFO */
+.profile-top {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* PROFILE LETTER */
+.profile-letter {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); /* Vibrant Gradient */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 34px;
+    font-weight: 600;
+    margin: 0 auto 12px auto;
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.profile-letter:hover {
+    transform: rotate(5deg) scale(1.05);
+}
+
+/* NAME & EMAIL */
+.profile-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.profile-email {
+    font-size: 13px;
+    color: #8898aa;
+    margin-bottom: 15px;
+}
+
+/* MENU ITEMS */
+.menu-item {
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 12px;
+    margin-top: 8px;
+    background: #f8fafd;
+    color: #4a5568;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+/* Chrome-style hover */
+.menu-item:hover {
+    background: white;
+    border-color: #4facfe;
+    color: #4facfe;
+    transform: translateX(5px); /* Smooth slide effect */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* LOGOUT */
+.logout {
+    background: #fff5f5;
+    color: #e53e3e;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.logout:hover {
+    background: #feb2b2 !important;
+    color: #c53030 !important;
+    transform: translateX(0) scale(0.98); /* Slight press effect */
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #edf2f7;
+    margin: 15px 0;
+}
+.profile-icon-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #4facfe;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* This ensures the icon looks like a circle with a letter, not an image */
+.profile-icon-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #4facfe; /* Blue color */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 18px;
+    text-transform: uppercase;
 }
 
 /* ADD THIS NEW BLOCK BELOW */
@@ -82,12 +224,6 @@ border-radius:50%;
     color: #aa01ec; /* Darker color for better contrast */
 }
 
-.profile img{
-width:35px;
-height:35px;
-border-radius:50%;
-cursor:pointer;
-}
 
 /* ================= PAGE 1 : UPLOAD AREA ================= */
 

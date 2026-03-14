@@ -4,20 +4,34 @@
         "label": "REAL VOICE",
         "fake": 0.005298,
         "real": 0.994702,
-        "time": "14-03-2026 00:05"
+        "time": "14-03-2026 14:11"
     },
     {
-        "file": "file_example_WAV_10MG.wav",
+        "file": "17674044133504573845vrh7lxc-voicemaker.in-speech.wav",
         "label": "FAKE (AI GENERATED)",
-        "fake": 8.613124,
-        "real": 0.999914,
-        "time": "14-03-2026 00:12"
+        "fake": 0.999474,
+        "real": 0.000526,
+        "time": "14-03-2026 14:11"
     },
     {
-        "file": "file_example_WAV_10MG.wav",
+        "file": "test_voice_10s.wav",
         "label": "FAKE (AI GENERATED)",
-        "fake": 8.613124,
-        "real": 0.999914,
-        "time": "14-03-2026 00:53"
+        "fake": 0.986602,
+        "real": 0.013398,
+        "time": "14-03-2026 14:11"
+    },
+    {
+        "file": "test_voice_10s.wav",
+        "label": "FAKE (AI GENERATED)",
+        "fake": 0.986602,
+        "real": 0.013398,
+        "time": "14-03-2026 14:12"
+    },
+    {
+        "file": "test_voice_10s.wav",
+        "label": "FAKE (AI GENERATED)",
+        "fake": 0.986602,
+        "real": 0.013398,
+        "time": "14-03-2026 14:38"
     }
 ]

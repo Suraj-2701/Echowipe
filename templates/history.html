@@ -15,9 +15,9 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <body>
 
 <!-- NAVBAR -->
-
 <div class="navbar">
 
+<!-- LEFT SIDE -->
 <div class="left-nav">
 
 <div class="logo-container">
@@ -27,16 +27,53 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <div class="nav-links">
 <a href="{{ url_for('dashboard') }}">Home</a>
-<a href="{{ url_for('history') }}" class="active">Results</a>
+<a href="{{ url_for('history') }}">Results</a>
 </div>
 
 </div>
 
+
+<!-- RIGHT SIDE PROFILE -->
 <div class="profile">
-<img src="https://i.pravatar.cc/40">
+
+<div id="profileIcon" class="profile-icon-circle">
+{{ user.first[0] | upper if user else '?' }}
+</div>
+
+<!-- PROFILE DROPDOWN -->
+<div class="profile-menu" id="profileMenu">
+
+<div class="profile-top">
+<div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+<div class="profile-name">{{ user.first }} {{ user.last }}</div>
+<div class="profile-email">{{ email }}</div>
+</div>
+
+<hr>
+
+<div class="menu-item" onclick="window.location.href='/edit-profile'">
+👤 Edit Profile
+</div>
+
+<div class="menu-item" onclick="window.location.href='/change-password'">
+🔒 Change Password
+</div>
+
+<div class="menu-item" onclick="window.location.href='/help'">
+❓ Help & Support
+</div>
+
+<div class="menu-item logout" onclick="logoutUser()">
+⎋ Logout
 </div>
 
 </div>
+</div>
+
+</div>
+
+
+<!-- HISTORY TABLE -->
 
 <!-- HEADER -->
 
@@ -116,6 +153,42 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 </table>
 
 </div>
+<script>
 
+document.addEventListener("DOMContentLoaded", function(){
+
+const icon = document.getElementById("profileIcon");
+const menu = document.getElementById("profileMenu");
+
+if(icon && menu){
+
+icon.addEventListener("click", function(e){
+
+e.stopPropagation();
+
+if(menu.style.display === "block"){
+menu.style.display = "none";
+}else{
+menu.style.display = "block";
+}
+
+});
+
+document.addEventListener("click", function(){
+menu.style.display = "none";
+});
+
+}
+
+});
+
+function logoutUser(){
+let confirmLogout = confirm("Are you sure you want to logout?");
+if(confirmLogout){
+window.location.href="/";
+}
+}
+
+</script>
 </body>
 </html>
