@@ -29,6 +29,7 @@ Thumbs.db
 
 # -------- Database / Secrets --------
 users.json
+history.json
 
 index.lock
 
