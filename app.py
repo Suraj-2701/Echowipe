@@ -9,6 +9,9 @@ from reportlab.lib.pagesizes import letter
 import io
 from flask import send_file
 
+import csv
+from flask import Response
+
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -159,6 +162,123 @@ Echowipe Team
                 email_for_otp = email
 
     return render_template("index.html", otp_sent=otp_sent, email_for_otp=email_for_otp)
+@app.route("/resend-otp", methods=["GET", "POST"])
+def resend_otp():
+    email = request.args.get("email")
+    
+    # If the user is submitting the OTP code from this URL
+    if request.method == "POST":
+        # Redirect the POST request back to the main index logic 
+        # so you don't have to duplicate the verification code.
+        return index() 
+
+    # Handle the GET request (actually resending the email)
+    if email in otp_store:
+        token = otp_store[email]["otp"]
+        
+        msg = Message(
+             subject="Echowipe – Email Verification Code",
+                    recipients=[email],
+                    body=f"""
+Hello,
+
+Your Echowipe verification code is: {token}
+
+This code is valid for 5 minutes.
+Do not share it with anyone.
+
+Regards,
+Echowipe Team
+"""
+        )
+        
+        try:
+            mail.send(msg)
+            flash("A new OTP has been sent!", "success")
+        except Exception:
+            flash("Failed to resend email.", "danger")
+    else:
+        flash("Session expired. Please sign up again.", "warning")
+        return redirect(url_for("index"))
+    
+    # Re-render index with flags to keep the OTP form visible
+    return render_template("index.html", otp_sent=True, email_for_otp=email)
+
+# --- UNAUTHENTICATED FORGOT PASSWORD (REQUEST OTP) ---
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    # If the user submits their email to get an OTP
+    if request.method == "POST":
+        email = request.form.get("reset_email")
+        users = load_users()
+
+        # Check if email exists in database
+        if email not in users:
+            flash("Email not found in our system.", "danger")
+            return redirect(url_for("forgot_password"))
+
+        # Generate and store OTP
+        token = str(random.randint(100000, 999999))
+        otp_store[email] = {"otp": token}
+
+        # Send Email
+        msg = Message(
+            subject="Echowipe – Password Reset Code",
+            recipients=[email],
+            body=f"Your code to reset your Echowipe password is: {token}\n\nIf you did not request this, please ignore this email."
+        )
+        
+        try:
+            mail.send(msg)
+            flash("OTP sent to your email!", "success")
+            # Store email temporarily in session to use in the next step
+            session["reset_email"] = email 
+            return redirect(url_for("reset_password"))
+        except Exception as e:
+            flash("Failed to send email. Check your mail configuration.", "danger")
+            return redirect(url_for("forgot_password"))
+
+    # Show the email entry form
+    return render_template("forgot_password.html")
+
+
+# --- UNAUTHENTICATED RESET PASSWORD (VERIFY OTP & NEW PASS) ---
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    # Get the email from the temporary session
+    email = session.get("reset_email")
+    if not email:
+        return redirect(url_for("forgot_password"))
+
+    if request.method == "POST":
+        otp_input = request.form.get("otp_code")
+        new_pass = request.form.get("new_password")
+        confirm_pass = request.form.get("confirm_password")
+
+        # Check if passwords match
+        if new_pass != confirm_pass:
+            flash("New passwords do not match.", "danger")
+            return redirect(url_for("reset_password"))
+
+        # Verify OTP
+        if email in otp_store and otp_input == otp_store[email]["otp"]:
+            users = load_users()
+            # Update password
+            users[email]["password"] = generate_password_hash(new_pass)
+            save_users(users)
+            
+            # Clean up
+            otp_store.pop(email)
+            session.pop("reset_email", None) 
+            
+            flash("Password reset successfully! You can now log in.", "success")
+            return redirect(url_for("index")) # Send back to login page
+        else:
+            flash("Invalid OTP code.", "danger")
+            return redirect(url_for("reset_password"))
+
+    # Show the OTP and New Password form
+    return render_template("reset_password.html", email=email)
 
 #---------Terms and Condition-----------
 @app.route("/terms")
@@ -245,6 +365,7 @@ def detect():
     history = load_history()
 
     history.append({
+        "email": user_email,
         "file": file.filename,
         "label": result["label"],
         "fake": result["fake"],
@@ -261,37 +382,44 @@ def detect():
         email=user_email
     )
 #---------------- HISTORY -------------
+#---------------- HISTORY -------------
 @app.route("/history")
 def history():
 
     if "email" not in session:
         return redirect(url_for("index"))
 
+    user_email = session["email"]
     data = load_history()
-    data.reverse()
+    
+    # Filter history for only the currently logged-in user
+    user_history = [scan for scan in data if scan.get("email") == user_email]
+    user_history.reverse()
 
     users = load_users()
-    user_email = session["email"]
     user_data = users.get(user_email)
 
     return render_template(
         "history.html",
-        scans=data,
+        scans=user_history,  # Pass the filtered list here
         user=user_data,
         email=user_email
     )
-import csv
-from flask import Response
-
 # --- Export csv and pdf-----
 @app.route("/export-csv")
 def export_csv():
+    if "email" not in session:
+        return redirect(url_for("index"))
 
+    user_email = session["email"]
     data = load_history()
+    
+    # Filter for the current user
+    user_history = [scan for scan in data if scan.get("email") == user_email]
 
     def generate():
         yield "File,Result,Fake Score,Real Score,Date\n"
-        for row in data:
+        for row in user_history:
             yield f"{row['file']},{row['label']},{row['fake']},{row['real']},{row['time']}\n"
 
     return Response(
@@ -301,19 +429,23 @@ def export_csv():
     )
 
 
-
 @app.route("/export-pdf")
 def export_pdf():
+    if "email" not in session:
+        return redirect(url_for("index"))
 
+    user_email = session["email"]
     data = load_history()
+    
+    # Filter for the current user
+    user_history = [scan for scan in data if scan.get("email") == user_email]
 
     buffer = io.BytesIO()
-
     pdf = SimpleDocTemplate(buffer, pagesize=letter)
 
     table_data = [["File","Result","Fake Score","Real Score","Date"]]
 
-    for row in data:
+    for row in user_history:
         table_data.append([
             row["file"],
             row["label"],
@@ -323,9 +455,7 @@ def export_pdf():
         ])
 
     table = Table(table_data)
-
     pdf.build([table])
-
     buffer.seek(0)
 
     return send_file(
@@ -334,6 +464,7 @@ def export_pdf():
         download_name="echowipe_history.pdf",
         mimetype="application/pdf"
     )
+
 @app.context_processor
 def inject_user():
 
