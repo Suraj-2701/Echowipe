@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echowipe | FAQ</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        .faq-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .faq-header h1 {
+            font-size: 36px;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .faq-header p {
+            color: #718096;
+            font-size: 18px;
+        }
+
+        /* Accordion Style */
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question {
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 17px;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background-color: #f8faff;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+            background: #fff;
+        }
+
+        .faq-answer-content {
+            padding: 0 25px 25px 25px;
+            color: #4a5568;
+            line-height: 1.7;
+            font-size: 15px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 15px;
+        }
+
+        .faq-item.active {
+            border-color: #6C63FF;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.1);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 1000px; /* Large enough for content */
+            transition: max-height 1s ease-in-out;
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+            color: #6C63FF;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Search Bar */
+        .faq-search {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .faq-search input {
+            width: 100%;
+            padding: 15px 25px 15px 50px;
+            border-radius: 30px;
+            border: 2px solid #edf2f7;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .faq-search input:focus {
+            border-color: #6C63FF;
+        }
+
+        .faq-search i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="left-nav">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+                <span class="logo-text">Echowipe</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Home</a>
+                <a href="{{ url_for('history') }}">Results</a>
+                <a href="{{ url_for('api_docs') }}">API</a>
+                <a href="{{ url_for('how_it_works') }}">How it Works</a>
+                <a href="{{ url_for('faq') }}" style="color:#6C63FF; font-weight:bold;">FAQ</a>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+        </div>
+
+        <div class="profile">
+            <div id="profileIcon" class="profile-icon-circle">
+                {{ user.first[0] | upper if user else '?' }}
+            </div>
+            
+            <div class="profile-menu" id="profileMenu">
+                <div class="profile-top">
+                    <div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+                    <div class="profile-name">{{ user.first }} {{ user.last }}</div>
+                    <div class="profile-email">{{ email }}</div>
+                </div>
+                <hr>
+                <div class="menu-item" onclick="window.location.href='/edit-profile'">👤 Edit Profile</div>
+                <div class="menu-item" onclick="window.location.href='/change-password'">🔒 Change Password</div>
+                <div class="menu-item" onclick="window.location.href='/help'">❓ Help & Support</div>
+                <div class="menu-item logout" onclick="logoutUser()">⎋ Logout</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="faq-container">
+            
+            <div class="faq-header">
+                <h1>Frequently Asked Questions</h1>
+                <p>Everything you need to know about Echowipe and AI detection.</p>
+            </div>
+
+            <div class="faq-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="faqSearch" placeholder="Search for a question...">
+            </div>
+
+            <div class="faq-list">
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How accurate is the AI detection?
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Echowipe currently maintains a 98.2% accuracy rate on clear audio samples. However, accuracy can be affected by heavy background noise or extremely low-quality recordings. We recommend using .wav files for the best results.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Which AI models can you detect?
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Our system is trained to identify artifacts from major providers like ElevenLabs, OpenAI Voice, Tacotron, RVC (Retrieval-based Voice Conversion), and many open-source deepfake models.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is my data and audio secure?
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes. We use end-to-end encryption for all uploads. Audio files are processed in a volatile memory environment and are not stored on our servers unless you explicitly save them to your history.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I use the API for commercial projects?
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely. Our API is designed for scale. You can integrate Echowipe into call centers, verification platforms, or content moderation tools. Check the API tab for documentation.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What file formats are supported?
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            We currently support <strong>.wav</strong>. For forensic-level analysis, we highly recommend uncompressed .wav files.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Accordion Toggle Logic
+        document.querySelectorAll('.faq-question').forEach(item => {
+            item.addEventListener('click', event => {
+                const parent = item.parentElement;
+                parent.classList.toggle('active');
+            });
+        });
+
+        // Simple Search Filter
+        document.getElementById('faqSearch').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let items = document.querySelectorAll('.faq-item');
+            
+            items.forEach(item => {
+                let text = item.innerText.toLowerCase();
+                item.style.display = text.includes(filter) ? "block" : "none";
+            });
+        });
+
+        // Profile Menu Logic
+        const icon = document.getElementById("profileIcon");
+        const menu = document.getElementById("profileMenu");
+        if(icon && menu){
+            icon.addEventListener("click", (e) => {
+                e.stopPropagation();
+                menu.style.display = menu.style.display === "block" ? "none" : "block";
+            });
+            document.addEventListener("click", () => menu.style.display = "none");
+        }
+
+        function logoutUser(){
+            if(confirm("Are you sure you want to logout?")){ window.location.href="/"; }
+        }
+    </script>
+</body>
+</html>

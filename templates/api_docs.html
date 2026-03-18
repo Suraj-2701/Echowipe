@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Echowipe | API Docs</title>
+
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="left-nav">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+            <span class="logo-text">Echowipe</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Home</a>
+            <a href="{{ url_for('history') }}">Results</a>
+            <a href="{{ url_for('api_docs') }}" style="color:#6C63FF; font-weight:bold;">API</a> 
+            <a href="{{ url_for('how_it_works') }}">How it Works</a> 
+            <a href="{{ url_for('faq') }}">FAQ</a> 
+            <a href="{{ url_for('about') }}">About Us</a> 
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+    </div>
+
+    <div class="profile">
+        <div id="profileIcon" class="profile-icon-circle">
+            {{ user.first[0] | upper if user else '?' }}
+        </div>
+    </div>
+
+    <!-- PROFILE DROPDOWN -->
+    <div class="profile-menu" id="profileMenu">
+
+        <div class="profile-top">
+            <div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+            <div class="profile-name">{{ user.first }} {{ user.last }}</div>
+            <div class="profile-email">{{ email }}</div>
+        </div>
+
+        <hr>
+
+        <div class="menu-item" onclick="window.location.href='/edit-profile'">
+        👤 Edit Profile
+        </div>
+
+        <div class="menu-item" onclick="window.location.href='/change-password'">
+        🔒 Change Password
+        </div>
+
+        <div class="menu-item" onclick="window.location.href='/help'">
+        ❓ Help & Support
+        </div>
+
+        <div class="menu-item logout" onclick="logoutUser()">
+        ⎋ Logout
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- API CONTENT -->
+<div class="page-content">
+
+    {% block content %}{% endblock %}
+
+<div class="api-container">
+    <h1>Developer API</h1>
+    <p class="subtitle">Integrate Echowipe voice detection into your own applications with our REST API.</p>
+
+    <div style="background: #eef2ff; padding: 15px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #6c63ff;">
+        <code style="color: #4338ca;"><strong>Base URL:</strong> http://127.0.0.1:20000</code>
+    </div>
+
+    <div class="endpoint-card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <span class="method">POST</span>
+            <code style="font-size: 18px; color: #333;">/api/v1/detect</code>
+        </div>
+        
+        <p style="color: #666; line-height: 1.6;">
+            Send a <code>.wav</code> audio file via a multipart form-data request. Our model will return the probability scores and a classification label.
+        </p>
+
+        <h4 class="section-title">Request Body</h4>
+        <table class="param-table">
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Requirement</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>audio</code></td>
+                <td>file</td>
+                <td style="color: #e63946;">Required</td>
+                <td>The <code>.wav</code> audio file to be analyzed.</td>
+            </tr>
+        </table>
+
+        <h4 class="section-title">Implementation Example</h4>
+        <div class="code-card">
+            <div class="code-header">
+                <span>Python (Requests library)</span>
+                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-body">
+<pre id="apiCode"><code>import requests
+
+url = "http://127.0.0.1:20000/api/v1/detect"
+files = {'audio': open('voice_sample.wav', 'rb')}
+
+response = requests.post(url, files=files)
+print(response.json())</code></pre>
+            </div>
+        </div>
+
+        <h4 class="section-title">Response Schema</h4>
+        <div class="code-card">
+            <div class="code-body">
+<pre><code>{
+  "status": "success",
+  "label": "FAKE (AI GENERATED)",
+  "scores": {
+    "fake": 0.9852,
+    "real": 0.0148
+  }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+// --- Profile Dropdown Logic ---
+document.addEventListener("DOMContentLoaded", function(){
+    const icon = document.getElementById("profileIcon");
+    const menu = document.getElementById("profileMenu");
+
+    if(icon && menu){
+        icon.addEventListener("click", function(e){
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+        document.addEventListener("click", () => menu.style.display = "none");
+    }
+});
+
+// --- NEW: Copy Code Logic ---
+function copyCode() {
+    const codeText = document.getElementById("apiCode").innerText;
+    const btn = document.querySelector(".copy-btn");
+
+    navigator.clipboard.writeText(codeText).then(() => {
+        // Visual Feedback
+        const originalText = btn.innerText;
+        btn.innerText = "✓ Copied!";
+        btn.style.background = "#10b981"; // Change to green
+
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = ""; // Reset to CSS original
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        alert("Failed to copy code. Please select and copy manually.");
+    });
+}
+
+function logoutUser(){
+    if(confirm("Are you sure you want to logout?")){
+        window.location.href="/";
+    }
+}
+</script>
+</body>
+</html>
