@@ -11,6 +11,7 @@ from flask import send_file
 
 import csv
 from flask import Response
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify  # Added jsonify
 
 
 # ---------------- APP SETUP ----------------
@@ -613,6 +614,64 @@ def edit_profile():
 
     return render_template("edit_profile.html", user=user_data, email=email)
 
+
+@app.route('/api')
+def api_docs():
+    return render_template('api_docs.html') 
+
+@app.route('/how-it-works')
+def how_it_works():
+    return render_template('how_it_works.html')
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    # If you want to restrict this to logged-in users only:
+    if "email" not in session:
+        return redirect(url_for("index"))
+    
+    users = load_users()
+    user_data = users.get(session["email"])
+    return render_template('contact.html', user=user_data, email=session["email"])
+
+@app.route('/contact-submit', methods=['POST'])
+def contact_submit():
+    # 1. Collect Data
+    new_entry = {
+        "name": request.form.get('name'),
+        "email": request.form.get('email'),
+        "subject": request.form.get('subject'),
+        "message": request.form.get('message'),
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    # 2. Save to JSON
+    file_path = 'messages.json'
+    data = []
+    
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = []
+
+    data.append(new_entry)
+    
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)
+
+    # 3. Return JSON response (No redirect!)
+    return jsonify({"status": "success", "message": "Saved successfully"})
+
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=20000, debug=True)
+
