@@ -3,6 +3,7 @@
 <head>
     <title>Verify Reset - Echowipe</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='MainLogo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
     <style>
         body { font-family:'Poppins', sans-serif; background:linear-gradient(135deg,#eef3ff,#f9fbff); margin:0; }
@@ -15,25 +16,58 @@
 </head>
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
-    <div class="logo">Echowipe</div>
-    <div class="profile">
-        <div class="profile-icon-circle" id="profileIcon">
-            {{ user.first[0] | upper if user else '?' }}
+    <div class="left-nav">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='MainLogo.png') }}" class="nav-logo-img">
+            <span class="logo-text">Echowipe</span>
         </div>
 
-        <div class="profile-menu" id="profileMenu">
-            <div class="profile-top">
-                <div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
-                <div class="profile-name">{{ user.first }} {{ user.last }}</div>
-                <div class="profile-email">{{ email }}</div>
-            </div>
-            <hr>
-            <div class="menu-item" onclick="window.location.href='/profile'">👤 Edit Profile</div>
-            <div class="menu-item" onclick="window.location.href='/change-password'">🔒 Change Password</div>
-            <div class="menu-item" onclick="window.location.href='/help'">❓ Help & Support</div>
-            <div class="menu-item logout" onclick="logoutUser()">⎋ Logout</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Home</a>
+            <a href="{{ url_for('history') }}">Results</a>
+            <a href="{{ url_for('api_docs') }}">API</a> 
+            <a href="{{ url_for('how_it_works') }}">How it Works</a> 
+            <a href="{{ url_for('faq') }}">FAQ</a> 
+            <a href="{{ url_for('about') }}">About Us</a> 
+            <a href="{{ url_for('contact') }}">Contact</a>
         </div>
+    </div>
+
+    <div class="profile">
+        <div id="profileIcon" class="profile-icon-circle">
+            {{ user.first[0] | upper if user else '?' }}
+        </div>
+    </div>
+
+    <!-- PROFILE DROPDOWN -->
+    <div class="profile-menu" id="profileMenu">
+
+        <div class="profile-top">
+            <div class="profile-letter">{{ user.first[0] | upper if user else '?' }}</div>
+            <div class="profile-name">{{ user.first }} {{ user.last }}</div>
+            <div class="profile-email">{{ email }}</div>
+        </div>
+
+        <hr>
+
+        <div class="menu-item" onclick="window.location.href='/edit-profile'">
+        👤 Edit Profile
+        </div>
+
+        <div class="menu-item" onclick="window.location.href='/change-password'">
+        🔒 Change Password
+        </div>
+
+        <div class="menu-item" onclick="window.location.href='/help'">
+        ❓ Help & Support
+        </div>
+
+        <div class="menu-item logout" onclick="logoutUser()">
+        ⎋ Logout
+        </div>
+
     </div>
 </div>
 
